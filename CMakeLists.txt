@@ -11,7 +11,7 @@ ADD_DEFINITIONS(${GTK3_CFLAGS_OTHER})
 add_custom_command(OUTPUT resources.c
   PRE_BUILD
   COMMAND glib-compile-resources --generate --target=${CMAKE_BINARY_DIR}/resources.c exampleapp.gresource.xml
-  DEPENDS exampleapp.gresource.xml window.ui app-menu.ui
+  DEPENDS exampleapp.gresource.xml window.glade app-menu.ui
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
 

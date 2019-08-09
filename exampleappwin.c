@@ -7,7 +7,8 @@ struct _ExampleAppWindow
 {
   GtkApplicationWindow parent;
 
-  GtkWidget *stack;
+  GtkWidget *title;
+  GtkWidget *nr_tries;
 };
 
 G_DEFINE_TYPE (ExampleAppWindow, example_app_window, GTK_TYPE_APPLICATION_WINDOW)
@@ -22,8 +23,11 @@ static void
 example_app_window_class_init (ExampleAppWindowClass *class)
 {
   gtk_widget_class_set_template_from_resource (GTK_WIDGET_CLASS (class),
-                                               "/org/gtk/exampleapp/window.ui");
-  gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class), ExampleAppWindow, stack);
+                                               "/org/gtk/exampleapp/window.glade");
+  gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
+                                        ExampleAppWindow, title);
+  gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
+                                        ExampleAppWindow, nr_tries);
 }
 
 ExampleAppWindow *
@@ -36,30 +40,30 @@ void
 example_app_window_open (ExampleAppWindow *win,
                          GFile            *file)
 {
-  gchar *basename;
-  GtkWidget *scrolled, *view;
-  gchar *contents;
-  gsize length;
+  //gchar *basename;
+  //GtkWidget *scrolled, *view;
+  //gchar *contents;
+  //gsize length;
 
-  basename = g_file_get_basename (file);
+  //basename = g_file_get_basename (file);
 
-  scrolled = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_set_hexpand (scrolled, TRUE);
-  gtk_widget_set_vexpand (scrolled, TRUE);
-  view = gtk_text_view_new ();
-  gtk_text_view_set_editable (GTK_TEXT_VIEW (view), FALSE);
-  gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (view), FALSE);
-  gtk_container_add (GTK_CONTAINER (scrolled), view);
-  gtk_stack_add_titled (GTK_STACK (win->stack), scrolled, basename, basename);
+  //scrolled = gtk_scrolled_window_new (NULL, NULL);
+  //gtk_widget_set_hexpand (scrolled, TRUE);
+  //gtk_widget_set_vexpand (scrolled, TRUE);
+  //view = gtk_text_view_new ();
+  //gtk_text_view_set_editable (GTK_TEXT_VIEW (view), FALSE);
+  //gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (view), FALSE);
+  //gtk_container_add (GTK_CONTAINER (scrolled), view);
+  //// gtk_stack_add_titled (GTK_STACK (win->stack), scrolled, basename, basename);
 
-  if (g_file_load_contents (file, NULL, &contents, &length, NULL, NULL))
-    {
-      GtkTextBuffer *buffer;
+  //if (g_file_load_contents (file, NULL, &contents, &length, NULL, NULL))
+  //  {
+  //    GtkTextBuffer *buffer;
 
-      buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-      gtk_text_buffer_set_text (buffer, contents, length);
-      g_free (contents);
-    }
+  //    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  //    gtk_text_buffer_set_text (buffer, contents, length);
+  //    g_free (contents);
+  //  }
 
-  g_free (basename);
+  //g_free (basename);
 }
