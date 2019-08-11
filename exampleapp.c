@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <assert.h>
 
 #include "exampleapp.h"
 #include "exampleappwin.h"
@@ -28,7 +29,27 @@ app_menu_open (GSimpleAction *action,
           GVariant      *parameter,
           gpointer      app)
 {
-  printf("TODO: open\n");
+  GList *windows;
+  GtkWidget *dialog;
+  ExampleAppWindow *win;
+  gint res;
+  char *filename;
+
+  windows = gtk_application_get_windows (GTK_APPLICATION (app));
+  win = EXAMPLE_APP_WINDOW (windows->data);
+  assert (windows && "Windows should not be NULL here");
+  dialog = gtk_file_chooser_dialog_new ("Open File", GTK_WINDOW (win),
+                                        GTK_FILE_CHOOSER_ACTION_OPEN,
+                                        "_Cancel", GTK_RESPONSE_CANCEL,
+                                        "_Open", GTK_RESPONSE_ACCEPT, NULL);
+  res = gtk_dialog_run (GTK_DIALOG (dialog));
+  if (res == GTK_RESPONSE_ACCEPT)
+  {
+    filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    printf("%s\n", filename);
+    g_free (filename);
+  }
+  gtk_widget_destroy (dialog);
 }
 
 static void

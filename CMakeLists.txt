@@ -27,7 +27,10 @@ add_executable(yurn
   main.c
   exampleapp.c
   exampleappwin.c
-  resources.c)
-target_link_libraries(yurn PRIVATE ${GTK3_LIBRARIES})
+  resources.c
+  gamedata.c
+  jsonparser.c)
+target_link_libraries(yurn PRIVATE ${GTK3_LIBRARIES} jansson)
 target_include_directories(yurn PRIVATE ${CMAKE_BINARY_DIR})
+target_compile_options(yurn PRIVATE -Wall -g)
 add_dependencies(yurn yurn_style)
