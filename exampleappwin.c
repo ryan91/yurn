@@ -1,5 +1,7 @@
 #include <gtk/gtk.h>
 
+#include "yurn_style.h"
+
 #include "exampleapp.h"
 #include "exampleappwin.h"
 
@@ -9,6 +11,11 @@ struct _ExampleAppWindow
 
   GtkWidget *title;
   GtkWidget *nr_tries;
+  GtkWidget *timer_seconds;
+  GtkWidget *timer_decimal;
+  GtkWidget *previous_segment;
+  GtkWidget *best_possible_time;
+  GtkWidget *personal_best;
 };
 
 G_DEFINE_TYPE (ExampleAppWindow, example_app_window, GTK_TYPE_APPLICATION_WINDOW)
@@ -16,7 +23,28 @@ G_DEFINE_TYPE (ExampleAppWindow, example_app_window, GTK_TYPE_APPLICATION_WINDOW
 static void
 example_app_window_init (ExampleAppWindow *win)
 {
+  GtkCssProvider *win_style;
+  GdkScreen *screen;
+  GdkDisplay *display;
+
   gtk_widget_init_template (GTK_WIDGET (win));
+
+  win_style = gtk_css_provider_new ();
+  display = gdk_display_get_default ();
+  screen = gdk_display_get_default_screen (display);
+  gtk_style_context_add_provider_for_screen (
+      screen,
+      GTK_STYLE_PROVIDER(win_style),
+      GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (win_style),
+                                   (char *) yurn_css, yurn_css_len, NULL);
+
+  gtk_style_context_add_class (
+      gtk_widget_get_style_context (win->timer_seconds),
+      "timer-seconds");
+  gtk_style_context_add_class (
+      gtk_widget_get_style_context (win->timer_decimal),
+      "timer-decimal");
 }
 
 static void
@@ -28,6 +56,16 @@ example_app_window_class_init (ExampleAppWindowClass *class)
                                         ExampleAppWindow, title);
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
                                         ExampleAppWindow, nr_tries);
+  gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
+                                        ExampleAppWindow, timer_seconds);
+  gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
+                                        ExampleAppWindow, timer_decimal);
+  gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
+                                        ExampleAppWindow, previous_segment);
+  gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
+                                        ExampleAppWindow, best_possible_time);
+  gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
+                                        ExampleAppWindow, personal_best);
 }
 
 ExampleAppWindow *

@@ -16,13 +16,6 @@ example_app_init (ExampleApp *app)
 }
 
 static void
-preferences_activated (GSimpleAction *action,
-                       GVariant      *parameter,
-                       gpointer       app)
-{
-}
-
-static void
 quit_activated (GSimpleAction *action,
                 GVariant      *parameter,
                 gpointer       app)
@@ -30,10 +23,36 @@ quit_activated (GSimpleAction *action,
   g_application_quit (G_APPLICATION (app));
 }
 
+static void
+app_menu_open (GSimpleAction *action,
+          GVariant      *parameter,
+          gpointer      app)
+{
+  printf("TODO: open\n");
+}
+
+static void
+app_menu_save (GSimpleAction *action,
+          GVariant      *parameter,
+          gpointer      app)
+{
+  printf("TODO: save\n");
+}
+
+static void
+app_menu_reload (GSimpleAction *action,
+            GVariant      *parameter,
+            gpointer      app)
+{
+  printf("TOOD: reload\n");
+}
+
 static GActionEntry app_entries[] =
 {
-  { "preferences", preferences_activated, NULL, NULL, NULL },
-  { "quit", quit_activated, NULL, NULL, NULL }
+  { "open",        app_menu_open,         NULL, NULL, NULL },
+  { "save",        app_menu_save,         NULL, NULL, NULL },
+  { "reload",      app_menu_reload,       NULL, NULL, NULL },
+  { "quit",        quit_activated,        NULL, NULL, NULL }
 };
 
 static void
@@ -41,6 +60,8 @@ example_app_startup (GApplication *app)
 {
   GtkBuilder *builder;
   GMenuModel *app_menu;
+  const gchar *open_accels[2] = { "<Ctrl>O", NULL };
+  const gchar *save_accels[2] = { "<Ctrl>S", NULL };
   const gchar *quit_accels[2] = { "<Ctrl>Q", NULL };
 
   G_APPLICATION_CLASS (example_app_parent_class)->startup (app);
@@ -49,8 +70,17 @@ example_app_startup (GApplication *app)
                                    app_entries, G_N_ELEMENTS (app_entries),
                                    app);
   gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+                                         "app.open",
+                                         open_accels
+                                         );
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+                                         "app.save",
+                                         save_accels
+                                         );
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
                                          "app.quit",
-                                         quit_accels);
+                                         quit_accels
+                                         );
 
   builder = gtk_builder_new_from_resource ("/org/gtk/exampleapp/app-menu.ui");
   app_menu = G_MENU_MODEL (gtk_builder_get_object (builder, "appmenu"));

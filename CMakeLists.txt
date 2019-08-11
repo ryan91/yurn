@@ -15,5 +15,19 @@ add_custom_command(OUTPUT resources.c
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
 
-ADD_EXECUTABLE(yurn main.c exampleapp.c exampleappwin.c resources.c)
-TARGET_LINK_LIBRARIES(yurn ${GTK3_LIBRARIES})
+add_custom_command(OUTPUT yurn_style.h
+  PRE_BUILD
+  COMMAND xxd --include yurn.css > ${CMAKE_BINARY_DIR}/yurn_style.h
+  DEPENDS yurn.css
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+add_custom_target(yurn_style DEPENDS yurn_style.h)
+
+add_executable(yurn
+  main.c
+  exampleapp.c
+  exampleappwin.c
+  resources.c)
+target_link_libraries(yurn PRIVATE ${GTK3_LIBRARIES})
+target_include_directories(yurn PRIVATE ${CMAKE_BINARY_DIR})
+add_dependencies(yurn yurn_style)
