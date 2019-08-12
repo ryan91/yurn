@@ -3,17 +3,12 @@
 
 #include <stdint.h>
 
-typedef struct _YurnTime {
-  uint16_t hours;
-  uint8_t minutes;
-  uint8_t seconds;
-  uint32_t miliseconds;
-} YurnTime;
+typedef double YurnTime;
 
 typedef struct _Segment {
   char title[32];
-  YurnTime *best_seg;
-  YurnTime *pb_run;
+  YurnTime best_seg;
+  YurnTime pb_run;
 } Segment;
 
 typedef struct _GameData {
@@ -22,7 +17,7 @@ typedef struct _GameData {
   float start_delay;
   Segment **segments;
   uint8_t nr_segments;
-  YurnTime *wr_time;
+  YurnTime wr_time;
   char wr_by[32];
 } GameData;
 
@@ -40,14 +35,5 @@ game_data_free (GameData *game);
 
 void
 game_data_add_segment (GameData *game, Segment *seg);
-
-YurnTime *
-sum_of_best_segments(GameData *game);
-
-YurnTime *
-add_times (const YurnTime *t1, const YurnTime *t2);
-
-void
-add_times_inplace (YurnTime *t1, const YurnTime *t2);
 
 #endif

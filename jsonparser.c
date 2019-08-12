@@ -15,54 +15,6 @@ is_number (const char *c)
   return 1;
 }
 
-static YurnTime *
-parse_json_time (const char *time_str)
-{
-  YurnTime *time;
-  char str[3];
-
-  time = malloc (sizeof (YurnTime));
-  str[2] = 0;
-
-  str[0] = time_str[0];
-  str[1] = time_str[1];
-  if (! is_number (str))
-  {
-    goto fail;
-  }
-  time->hours = atoi (str);
-
-  str[0] = time_str[3];
-  str[1] = time_str[4];
-  if (! is_number (str))
-  {
-    goto fail;
-  }
-  time->minutes = atoi (str);
-
-  str[0] = time_str[6];
-  str[1] = time_str[7];
-  if (! is_number (str))
-  {
-    goto fail;
-  }
-  time->seconds = atoi (str);
-
-  str[0] = time_str[9];
-  str[1] = time_str[10];
-  if (! is_number (str))
-  {
-    goto fail;
-  }
-  time->miliseconds = atoi (str);
- 
-  return time;
-
-fail:
-  free (time);
-  return NULL;
-}
-
 GameData *
 json_parser_read_file (const char *filename)
 {
@@ -70,7 +22,6 @@ json_parser_read_file (const char *filename)
   json_t *json_segment;
   json_t *ref;
   json_t *splits;
-  YurnTime *time;
   size_t nr_splits;
   json_error_t error;
   GameData *game;
@@ -123,14 +74,12 @@ json_parser_read_file (const char *filename)
       ref = json_object_get (json_segment, "best seg");
       if (ref)
       {
-        time = parse_json_time (json_string_value (ref));
-        seg->best_seg = time;
+        seg->best_seg = json_real_value (ref);
       }
       ref = json_object_get (json_segment, "pb run");
       if (ref)
       {
-        time = parse_json_time (json_string_value (ref));
-        seg->pb_run = time;
+        seg->pb_run = json_real_value (ref);
       }
       game_data_add_segment (game, seg);
     }
@@ -142,8 +91,7 @@ json_parser_read_file (const char *filename)
     ref = json_object_get (json_segment, "time");
     if (ref)
     {
-      time = parse_json_time (json_string_value (ref));
-      game->wr_time = time;
+      game->wr_time = json_real_value (ref);
     }
     ref = json_object_get (json_segment, "by");
     if (ref)

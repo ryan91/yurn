@@ -3,16 +3,8 @@
 , "start_delay" : 3.4
 , "splits" : [
     { "title"    : "Level 1"
-    , "pb run"   : "00:01:11.00"
-    , "best seg" : "00:01:05.00"
-    }
-  , { "title"    : "Level 2"
-    , "pb run"   : "00:03:41.00"
-    , "best seg" : "00:02:04:23"
+    , "pb run"   : 3823.39583
+    , "best seg" : 8.83748
     }
   ]
-, "world_record" : {
-    "time" : "00:31:00.00"
-  , "by"   : "Dode (obviously)"
-  }
 }
