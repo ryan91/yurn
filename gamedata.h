@@ -12,7 +12,7 @@ typedef struct _YurnTime {
 
 typedef struct _Segment {
   char title[32];
-  YurnTime time;
+  YurnTime *time;
 } Segment;
 
 typedef struct _GameData {
@@ -21,6 +21,8 @@ typedef struct _GameData {
   float start_delay;
   Segment **segments;
   uint8_t nr_segments;
+  YurnTime *wr_time;
+  char wr_by[32];
 } GameData;
 
 Segment *

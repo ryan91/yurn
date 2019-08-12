@@ -8,12 +8,14 @@ game_segment_new ()
   Segment *seg;
     
   seg = malloc(sizeof(Segment));
+  seg->time = NULL;
   return seg;
 }
 
 void
 game_segment_free (Segment *seg)
 {
+  free(seg->time);
   free(seg);
 }
 
@@ -27,6 +29,9 @@ game_data_new ()
   game->nr_segments = 0;
   game->attempts = 0;
   game->start_delay = 0.f;
+  game->title[0] = 0;
+  game->wr_time = NULL;
+  game->wr_by[0] = 0;
   return game;
 }
 
@@ -38,6 +43,7 @@ game_data_free (GameData *game)
     game_segment_free(game->segments[i]);
   }
   free(game->segments);
+  free(game->wr_time);
   free(game);
 }
 
