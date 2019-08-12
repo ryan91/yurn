@@ -46,7 +46,7 @@ app_menu_open (GSimpleAction *action,
   if (res == GTK_RESPONSE_ACCEPT)
   {
     filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-    printf("%s\n", filename);
+    example_app_window_open (win, filename);
     g_free (filename);
   }
   gtk_widget_destroy (dialog);
@@ -133,9 +133,6 @@ example_app_open (GApplication  *app,
     win = EXAMPLE_APP_WINDOW (windows->data);
   else
     win = example_app_window_new (EXAMPLE_APP (app));
-
-  for (i = 0; i < n_files; i++)
-    example_app_window_open (win, files[i]);
 
   gtk_window_present (GTK_WINDOW (win));
 }

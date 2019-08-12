@@ -57,3 +57,40 @@ game_data_add_segment (GameData *game, Segment *seg)
   }
   game->segments[game->nr_segments++] = seg;
 }
+
+static void
+__add_times(YurnTime *res, const YurnTime *t1, const YurnTime *t2)
+{
+  uint8_t carry;
+  uint32_t sum;
+
+  sum = t1->miliseconds + t2->miliseconds;
+  res->miliseconds = sum % 100;
+  carry = sum / 100;
+
+  sum = t1->seconds + t2->seconds + carry;
+  res->seconds = sum % 60;
+  carry = sum / 60;
+
+  sum = t1->minutes + t2->minutes + carry;
+  res->minutes = sum % 60;
+  carry = sum / 60;
+
+  res->hours = t1->hours + t2->hours + carry;
+}
+
+YurnTime *
+add_times (const YurnTime *t1, const YurnTime *t2)
+{
+  YurnTime *res;
+
+  res = malloc (sizeof (YurnTime));
+  __add_times (res, t1, t2);
+  return res;
+}
+
+void
+add_times_inplace (YurnTime *t1, const YurnTime *t2)
+{
+  __add_times (t1, t1, t2);
+}

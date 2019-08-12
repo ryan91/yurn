@@ -40,4 +40,10 @@ game_data_free (GameData *game);
 void
 game_data_add_segment (GameData *game, Segment *seg);
 
+YurnTime *
+add_times (const YurnTime *t1, const YurnTime *t2);
+
+void
+add_times_inplace (YurnTime *t1, const YurnTime *t2);
+
 #endif
