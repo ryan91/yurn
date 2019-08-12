@@ -120,11 +120,17 @@ json_parser_read_file (const char *filename)
       {
         strcpy (seg->title, json_string_value (ref));
       }
-      ref = json_object_get (json_segment, "best");
+      ref = json_object_get (json_segment, "best seg");
       if (ref)
       {
         time = parse_json_time (json_string_value (ref));
-        seg->time = time;
+        seg->best_seg = time;
+      }
+      ref = json_object_get (json_segment, "pb run");
+      if (ref)
+      {
+        time = parse_json_time (json_string_value (ref));
+        seg->pb_run = time;
       }
       game_data_add_segment (game, seg);
     }

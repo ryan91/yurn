@@ -6,26 +6,6 @@
 #include "exampleappwin.h"
 #include "jsonparser.h"
 
-static void
-format_time (char *buffer, const YurnTime *time)
-{
-  if (time->hours)
-  {
-    if (time->miliseconds)
-    {
-      sprintf (buffer, "%02u:%02u:%02u.%02u", time->hours, time->minutes,
-               time->seconds, time->miliseconds);
-    } else
-    {
-      sprintf (buffer, "%02u:%02u:%02u", time->hours, time->minutes,
-               time->seconds);
-    }
-  } else
-  {
-    sprintf (buffer, "%02u:%02u", time->minutes, time->seconds);
-  }
-}
-
 struct _ExampleAppWindow
 {
   GtkApplicationWindow parent;
@@ -43,6 +23,19 @@ struct _ExampleAppWindow
 };
 
 G_DEFINE_TYPE (ExampleAppWindow, example_app_window, GTK_TYPE_APPLICATION_WINDOW)
+
+static void
+format_time (char *buffer, const YurnTime *time)
+{
+  if (time->hours)
+  {
+    sprintf (buffer, "%02u:%02u:%02u", time->hours, time->minutes,
+             time->seconds);
+  } else
+  {
+    sprintf (buffer, "%02u:%02u", time->minutes, time->seconds);
+  }
+}
 
 static void
 example_app_window_init (ExampleAppWindow *win)
@@ -64,13 +57,6 @@ example_app_window_init (ExampleAppWindow *win)
       GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
   gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (win_style),
                                    (char *) yurn_css, yurn_css_len, NULL);
-
-  gtk_style_context_add_class (
-      gtk_widget_get_style_context (win->timer_seconds),
-      "timer-seconds");
-  gtk_style_context_add_class (
-      gtk_widget_get_style_context (win->timer_decimal),
-      "timer-decimal");
 }
 
 static void
@@ -107,38 +93,31 @@ example_app_window_load_game (ExampleAppWindow *win)
   GtkWidget *split_title;
   GtkWidget *split_time;
   Segment *seg;
-  YurnTime *time;
-  YurnTime *pb;
-  char best_sum_valid;
+  YurnTime *pb_run;
+  YurnTime *best_seg;
 
   game = win->game;
   gtk_label_set_text (GTK_LABEL (win->title), game->title);
   sprintf(buffer, "#%u", game->attempts);
   gtk_label_set_text (GTK_LABEL (win->nr_tries), buffer);
   splits = win->splits;
-  pb = calloc (1, sizeof (YurnTime));
-  best_sum_valid = 1;
+  best_seg = NULL;
 
   for (uint8_t i = 0; i < game->nr_segments; ++i) {
     seg = game->segments[i];
     expand_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_hexpand (expand_box, TRUE);
-    time = seg->time;
+    pb_run = seg->pb_run;
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     split_title = gtk_label_new (seg->title);
     split_time = gtk_label_new (NULL);
-    if (time)
+    if (pb_run)
     {
-      if (best_sum_valid)
-      {
-        add_times_inplace (pb, time);
-      }
-      format_time (buffer, time);
+      format_time (buffer, pb_run);
       gtk_label_set_text (GTK_LABEL (split_time), buffer);
     } else
     {
       gtk_label_set_text (GTK_LABEL (split_time), "-");
-      best_sum_valid = 0;
     }
     gtk_container_add (GTK_CONTAINER (hbox), split_title);
     gtk_container_add (GTK_CONTAINER (hbox), expand_box);
@@ -146,10 +125,19 @@ example_app_window_load_game (ExampleAppWindow *win)
     gtk_container_add (GTK_CONTAINER (splits), hbox);
   }
 
-  if (best_sum_valid)
+  if (pb_run)
   {
-    format_time (buffer, pb);
+    sprintf(buffer, "%02u:%02u:%02u.%02u", pb_run->hours, pb_run->minutes,
+            pb_run->seconds, pb_run->miliseconds);
     gtk_label_set_text (GTK_LABEL (win->personal_best), buffer);
+  }
+
+  if (game->nr_segments > 0)
+  {
+    best_seg = sum_of_best_segments (game);
+    sprintf(buffer, "%02u:%02u:%02u.%02u", best_seg->hours, best_seg->minutes,
+            best_seg->seconds, best_seg->miliseconds);
+    gtk_label_set_text (GTK_LABEL (win->best_possible_time), buffer);
   }
 
   gtk_widget_show_all (win->splits);

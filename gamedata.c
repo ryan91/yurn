@@ -8,14 +8,16 @@ game_segment_new ()
   Segment *seg;
     
   seg = malloc(sizeof(Segment));
-  seg->time = NULL;
+  seg->pb_run = NULL;
+  seg->best_seg = NULL;
   return seg;
 }
 
 void
 game_segment_free (Segment *seg)
 {
-  free(seg->time);
+  free(seg->best_seg);
+  free(seg->pb_run);
   free(seg);
 }
 
@@ -93,4 +95,17 @@ void
 add_times_inplace (YurnTime *t1, const YurnTime *t2)
 {
   __add_times (t1, t1, t2);
+}
+
+YurnTime *
+sum_of_best_segments (GameData *game)
+{
+  YurnTime *sum;
+
+  sum = calloc (1, sizeof (YurnTime));
+  for (uint8_t i = 0; i < game->nr_segments; ++i)
+  {
+    __add_times (sum, sum , game->segments[i]->best_seg);
+  }
+  return sum;
 }

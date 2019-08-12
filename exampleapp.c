@@ -126,7 +126,6 @@ example_app_open (GApplication  *app,
 {
   GList *windows;
   ExampleAppWindow *win;
-  int i;
 
   windows = gtk_application_get_windows (GTK_APPLICATION (app));
   if (windows)

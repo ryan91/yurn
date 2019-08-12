@@ -12,7 +12,8 @@ typedef struct _YurnTime {
 
 typedef struct _Segment {
   char title[32];
-  YurnTime *time;
+  YurnTime *best_seg;
+  YurnTime *pb_run;
 } Segment;
 
 typedef struct _GameData {
@@ -39,6 +40,9 @@ game_data_free (GameData *game);
 
 void
 game_data_add_segment (GameData *game, Segment *seg);
+
+YurnTime *
+sum_of_best_segments(GameData *game);
 
 YurnTime *
 add_times (const YurnTime *t1, const YurnTime *t2);
