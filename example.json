@@ -1,10 +1,14 @@
 { "title"       : "My Cool Game"
 , "attempts"    : 42
 , "start_delay" : 3.4
-, "splits" : [
-    { "title"    : "Level 1"
-    , "pb run"   : 3823.39583
-    , "best seg" : 8.83748
+, "splits" :
+  [ { "title"    : "Level 1"
+    , "pb run"   : 25.22
+    , "best seg" : 20.83
     }
+  , { "title"    : "Level 2"
+  , "pb run"   : 35.22
+  , "best seg" : 22.83
+  }
   ]
 }

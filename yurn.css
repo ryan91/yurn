@@ -4,3 +4,12 @@
 .timer-decimal {
   font-size: 200%;
 }
+
+.time {
+	font-family: "Roboto Black", "Droid Sans", "Tahoma", "Arial", sans-serif;
+  font-weight: bold;
+}
+
+.current-split {
+  background-color: rgba(127, 127, 255, 0.3);
+}
