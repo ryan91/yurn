@@ -202,7 +202,6 @@ handle_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
           example_app_window_split_start (win);
           return TRUE;
         case TIMER_PAUSED:
-          printf ("Should not reach this ever right now\n");
           return TRUE;
         case TIMER_FINISHED:
           return TRUE;
