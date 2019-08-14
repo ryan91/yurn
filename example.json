@@ -3,12 +3,13 @@
 , "start_delay" : 3.4
 , "splits" :
   [ { "title"    : "Level 1"
-    , "pb run"   : 25.22
-    , "best seg" : 20.83
+    , "pb run"   : 20.22
+    , "best seg" : 16.83
     }
   , { "title"    : "Level 2"
-  , "pb run"   : 35.22
-  , "best seg" : 22.83
-  }
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+
   ]
 }
