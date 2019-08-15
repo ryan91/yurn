@@ -1,0 +1,54 @@
+{ "title"       : "My Cool Game"
+, "attempts"    : 42
+, "start_delay" : 3.4
+, "splits" :
+  [ { "title"    : "Level 1"
+    , "pb run"   : 20.22
+    , "best seg" : 16.83
+    }
+  , { "title"    : "Level 2"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 3"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 4"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 5"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 6"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 7"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 8"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 9"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 10"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 11"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  , { "title"    : "Level 12"
+    , "pb run"   : 35.22
+    , "best seg" : 22.83
+    }
+  ]
+}

@@ -4,8 +4,8 @@
   <requires lib="gtk+" version="3.20"/>
   <template class="ExampleAppWindow" parent="GtkApplicationWindow">
     <property name="can_focus">False</property>
-    <property name="default_width">600</property>
-    <property name="default_height">400</property>
+    <property name="default_width">300</property>
+    <property name="default_height">450</property>
     <child>
       <placeholder/>
     </child>
@@ -22,8 +22,11 @@
               <object class="GtkLabel" id="title">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="label" translatable="yes">Title</property>
-                <property name="justify">center</property>
+                <style>
+                  <class name="game-title"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -51,12 +54,12 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox">
+          <object class="GtkBox" id="splits_box">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkScrolledWindow">
+              <object class="GtkScrolledWindow" id="split_scroller">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="shadow_type">in</property>
@@ -84,19 +87,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="splits_last">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -132,7 +123,6 @@
                 <property name="label" translatable="yes">00.0</property>
                 <property name="justify">right</property>
                 <style>
-                  <class name="timer-seconds"/>
                   <class name="time"/>
                 </style>
               </object>
@@ -189,7 +179,9 @@
                   <object class="GtkLabel" id="previous_segment">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">-</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
                   </object>
                   <packing>
                     <property name="expand">False</property>

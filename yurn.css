@@ -1,15 +1,59 @@
-.timer-seconds {
-  font-size: 300%;
-}
-.timer-decimal {
-  font-size: 200%;
+.window {
+	font-family: "Roboto", "Droid Sans", "Tahoma", "Arial", sans-serif;
+	color: #ffffff;
+  background-color: #1e1c1d;
 }
 
-.time {
-	font-family: "Roboto Black", "Droid Sans", "Tahoma", "Arial", sans-serif;
+.game-title {
+  font-size: large;
   font-weight: bold;
 }
 
+.time {
+  font-weight: bold;
+  font-size: 400%;
+  color: #53ff7c;
+}
+
+.splits-odd {
+  background-color: #393738;
+  border-style: solid;
+  border-top-width: 2px;
+  border-bottom-width: 2px;
+  border-top-color: #484647;
+  border-bottom-color: #484647;
+}
+
 .current-split {
-  background-color: rgba(127, 127, 255, 0.3);
+  background-color: #2167fd;
+}
+
+.last-split {
+  border-top-width: 1px;
+  border-bottom-width: 0px;
+  border-top-color: #efefef;
+}
+
+.timer-red {
+  color: #fb1124;
+}
+
+.split-gold {
+  font-weight: bold;
+  color: #feda14;
+}
+
+.split-green {
+  font-weight: bold;
+  color: #53ff7c;
+}
+
+.split-red {
+  font-weight: bold;
+  color: #f76c77;
+}
+
+.split-losing {
+  font-weight: bold;
+  color: #fb1124;
 }
