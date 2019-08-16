@@ -128,6 +128,32 @@ static void example_app_set_previous_segment (ExampleAppWindow *win)
 }
 
 static void
+example_app_adjust_split_scroll (ExampleAppWindow *win)
+{
+  gint dest_y;
+  GtkScrolledWindow *scroll;
+  GtkAdjustment *adjust;
+  GtkWidget *cur_seg;
+  int scroll_height;
+  int cur_height;
+
+  scroll = GTK_SCROLLED_WINDOW (win->split_scroller);
+  adjust = gtk_scrolled_window_get_vadjustment (scroll);
+  gtk_widget_translate_coordinates (win->splits,
+                                    GTK_WIDGET (win->segments->data),
+                                    0, 0, NULL, &dest_y);
+  dest_y = abs(dest_y);
+  cur_seg = GTK_WIDGET (win->segments->data);
+  scroll_height = gtk_widget_get_allocated_height (GTK_WIDGET (scroll));
+  cur_height = gtk_widget_get_allocated_height (cur_seg);
+
+  if (cur_height + dest_y > scroll_height)
+  {
+    gtk_adjustment_set_value (adjust, dest_y + cur_height - scroll_height);
+  }
+}
+
+static void
 example_app_window_split_step (ExampleAppWindow *win)
 {
   GList *segs;
@@ -136,11 +162,11 @@ example_app_window_split_step (ExampleAppWindow *win)
   example_app_set_previous_segment (win);
   if (segs->next)
   {
-
     remove_class (GTK_WIDGET (win->segments->data), "current-split");
     win->segments = win->segments->next;
     add_class (GTK_WIDGET (win->segments->data), "current-split");
     ++(win->current_segment);
+    example_app_adjust_split_scroll (win);
   }
   else if (segs)
   {
