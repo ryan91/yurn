@@ -4,12 +4,12 @@
 
 #include "yurn_style.h"
 
-#include "exampleapp.h"
-#include "exampleappwin.h"
+#include "yurnapp.h"
+#include "yurnappwin.h"
 #include "jsonparser.h"
 
 static void
-example_app_window_reload_game (ExampleAppWindow *win);
+yurn_app_win_reload_game (YurnAppWin *win);
 
 typedef enum _TimerState
 {
@@ -20,7 +20,7 @@ typedef enum _TimerState
 
 } TimerState;
 
-struct _ExampleAppWindow
+struct _YurnAppWin
 {
   GtkApplicationWindow parent;
 
@@ -47,7 +47,7 @@ struct _ExampleAppWindow
   gboolean              last_split_active;
 };
 
-G_DEFINE_TYPE (ExampleAppWindow, example_app_window, GTK_TYPE_APPLICATION_WINDOW)
+G_DEFINE_TYPE (YurnAppWin, yurn_app_win, GTK_TYPE_APPLICATION_WINDOW)
 
 static inline void
 add_class(GtkWidget *widget, const char *class)
@@ -62,7 +62,7 @@ remove_class(GtkWidget *widget, const char *class)
 }
 
 static GtkWidget *
-example_app_window_get_cur_diff_lbl (const ExampleAppWindow *win)
+yurn_app_win_get_cur_diff_lbl (const YurnAppWin *win)
 {
   GList                *children;
 
@@ -73,7 +73,7 @@ example_app_window_get_cur_diff_lbl (const ExampleAppWindow *win)
 }
 
 static void
-example_app_window_clock_reset (ExampleAppWindow *win)
+yurn_app_win_clock_reset (YurnAppWin *win)
 {
   GTimer               *timer;
 
@@ -85,42 +85,42 @@ example_app_window_clock_reset (ExampleAppWindow *win)
 }
 
 static void
-example_app_window_clock_start (ExampleAppWindow *win)
+yurn_app_win_clock_start (YurnAppWin *win)
 {
   g_timer_start (win->timer);
   win->timer_state = TIMER_STARTED;
 }
 
 static void
-example_app_window_clock_stop (ExampleAppWindow *win)
+yurn_app_win_clock_stop (YurnAppWin *win)
 {
   g_timer_stop (win->timer);
   win->timer_state = TIMER_PAUSED;
 }
 
 static void
-example_app_window_clock_resume (ExampleAppWindow *win)
+yurn_app_win_clock_resume (YurnAppWin *win)
 {
   g_timer_continue (win->timer);
   win->timer_state = TIMER_STARTED;
 }
 
 static void
-example_app_window_split_start (ExampleAppWindow *win)
+yurn_app_win_split_start (YurnAppWin *win)
 {
   assert (win->segments->data);
 
   add_class (GTK_WIDGET (win->segments->data), "current-split");
 }
 
-static void example_app_set_previous_segment (ExampleAppWindow *win)
+static void yurn_app_win_set_previous_segment (YurnAppWin *win)
 {
   GtkWidget            *diff_lbl;
   GtkStyleContext      *context;
   const gchar           split_css[4][12] =
     { "split-gold", "split-green", "split-red", "split-losing" };
 
-  diff_lbl = example_app_window_get_cur_diff_lbl (win);
+  diff_lbl = yurn_app_win_get_cur_diff_lbl (win);
   gtk_label_set_text (GTK_LABEL (win->previous_segment),
                       gtk_label_get_text (GTK_LABEL (diff_lbl)));
   context = gtk_widget_get_style_context (diff_lbl);
@@ -132,7 +132,7 @@ static void example_app_set_previous_segment (ExampleAppWindow *win)
 }
 
 static void
-example_app_adjust_split_scroll (ExampleAppWindow *win)
+yurn_app_win_adjust_split_scroll (YurnAppWin *win)
 {
   gint                  dest_y;
   GtkScrolledWindow    *scroll;
@@ -156,19 +156,19 @@ example_app_adjust_split_scroll (ExampleAppWindow *win)
 }
 
 static void
-example_app_window_split_step (ExampleAppWindow *win)
+yurn_app_win_split_step (YurnAppWin *win)
 {
   GList *segs;
 
   segs = win->segments;
-  example_app_set_previous_segment (win);
+  yurn_app_win_set_previous_segment (win);
   if (segs->next)
   {
     remove_class (GTK_WIDGET (win->segments->data), "current-split");
     win->segments = win->segments->next;
     add_class (GTK_WIDGET (win->segments->data), "current-split");
     ++(win->current_segment);
-    example_app_adjust_split_scroll (win);
+    yurn_app_win_adjust_split_scroll (win);
   }
   else if (segs)
   {
@@ -178,7 +178,7 @@ example_app_window_split_step (ExampleAppWindow *win)
 }
 
 static void
-example_app_window_split_reset (ExampleAppWindow *win)
+yurn_app_win_split_reset (YurnAppWin *win)
 {
   GList *segs;
 
@@ -191,9 +191,9 @@ example_app_window_split_reset (ExampleAppWindow *win)
 }
 
 static void
-format_time (char *buffer,
-             const YurnTime time,
-             const gboolean display_sign)
+format_time (char            *buffer,
+             const YurnTime   time,
+             const gboolean   display_sign)
 {
   YurnTime              seconds;
   char                  hours;
@@ -248,10 +248,10 @@ format_time (char *buffer,
 static gboolean
 handle_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
-  ExampleAppWindow *win;
-  TimerState state;
+  YurnAppWin           *win;
+  TimerState            state;
 
-  win = EXAMPLE_APP_WINDOW (data);
+  win = YURN_APP_WIN (data);
   state = win->timer_state;
 
   if (!win->game)
@@ -263,11 +263,11 @@ handle_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
       switch (state)
       {
         case TIMER_STARTED:
-          example_app_window_split_step (win);
+          yurn_app_win_split_step (win);
           return TRUE;
         case TIMER_STOPPED:
-          example_app_window_clock_start (win);
-          example_app_window_split_start (win);
+          yurn_app_win_clock_start (win);
+          yurn_app_win_split_start (win);
           return TRUE;
         case TIMER_PAUSED:
           return TRUE;
@@ -276,12 +276,12 @@ handle_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
       }
     case GDK_KEY_F3:
       if (win->timer_state == TIMER_STARTED)
-        example_app_window_clock_stop (win);
+        yurn_app_win_clock_stop (win);
       else
-        example_app_window_clock_resume (win);
+        yurn_app_win_clock_resume (win);
       return TRUE;
     case GDK_KEY_F5:
-      example_app_window_reload_game (win);
+      yurn_app_win_reload_game (win);
       return TRUE;
     default:
       return FALSE;
@@ -294,10 +294,10 @@ poll_time (gpointer data)
   double                seconds;
   double                diff_to_current_segment;
   double                diff_to_best_seg;
-  ExampleAppWindow     *win;
+  YurnAppWin           *win;
   GtkLabel             *diff_lbl;
 
-  win = EXAMPLE_APP_WINDOW (data);
+  win = YURN_APP_WIN (data);
 
   if (win->timer_state != TIMER_STARTED)
     return TRUE;
@@ -324,7 +324,7 @@ poll_time (gpointer data)
     format_time (win->current_diff_to_pb, diff_to_current_segment, TRUE);
     if (strcmp (win->current_diff_to_pb, win->old_diff_to_pb))
     {
-      diff_lbl = GTK_LABEL (example_app_window_get_cur_diff_lbl (win));
+      diff_lbl = GTK_LABEL (yurn_app_win_get_cur_diff_lbl (win));
       gtk_label_set_text (diff_lbl, win->current_diff_to_pb);
       strcpy (win->old_diff_to_pb, win->current_diff_to_pb);
 
@@ -344,7 +344,7 @@ poll_time (gpointer data)
 static gboolean
 handle_scroller_change (GtkAdjustment *adjust, gpointer data)
 {
-  ExampleAppWindow     *win;
+  YurnAppWin           *win;
   GtkContainer         *splits;
   GtkContainer         *splits_box;
   GtkWidget            *last_split;
@@ -353,7 +353,7 @@ handle_scroller_change (GtkAdjustment *adjust, gpointer data)
   double                page_size;
   gboolean              last_split_active;
 
-  win            = EXAMPLE_APP_WINDOW (data);
+  win               = YURN_APP_WIN (data);
 
   if (!win->game)
     return TRUE;
@@ -370,9 +370,9 @@ handle_scroller_change (GtkAdjustment *adjust, gpointer data)
   {
     if (!last_split_active)
     {
-    gtk_container_remove (splits, last_split);
-    gtk_container_add (splits_box, last_split);
-    win->last_split_active = TRUE;
+      gtk_container_remove (splits, last_split);
+      gtk_container_add (splits_box, last_split);
+      win->last_split_active = TRUE;
     }
   }
   else
@@ -388,7 +388,7 @@ handle_scroller_change (GtkAdjustment *adjust, gpointer data)
 }
 
 static void
-example_app_window_init (ExampleAppWindow *win)
+yurn_app_win_init (YurnAppWin *win)
 {
   GtkCssProvider       *win_style;
   GdkScreen            *screen;
@@ -409,7 +409,8 @@ example_app_window_init (ExampleAppWindow *win)
     (GTK_SCROLLED_WINDOW (win->split_scroller));
 
   gtk_widget_set_events (GTK_WIDGET (win), GDK_KEY_PRESS_MASK);
-  g_signal_connect (G_OBJECT (win), "key_press_event", G_CALLBACK (handle_keypress), win);
+  g_signal_connect (G_OBJECT (win), "key_press_event",
+                    G_CALLBACK (handle_keypress), win);
 
   g_timeout_add_full (G_PRIORITY_HIGH, 50, poll_time, win, NULL);
 
@@ -424,46 +425,47 @@ example_app_window_init (ExampleAppWindow *win)
 
   add_class (GTK_WIDGET (win), "window");
 
-  g_signal_connect (G_OBJECT (adjust), "value-changed", G_CALLBACK (handle_scroller_change), win);
+  g_signal_connect (G_OBJECT (adjust), "value-changed",
+                    G_CALLBACK (handle_scroller_change), win);
 }
 
 static void
-example_app_window_class_init (ExampleAppWindowClass *class)
+yurn_app_win_class_init (YurnAppWinClass *class)
 {
   gtk_widget_class_set_template_from_resource (GTK_WIDGET_CLASS (class),
-                                               "/org/gtk/exampleapp/window.glade");
+                                               "/org/gtk/yurn/window.glade");
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
-                                        ExampleAppWindow, title);
+                                        YurnAppWin, title);
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
-                                        ExampleAppWindow, nr_tries);
+                                        YurnAppWin, nr_tries);
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
-                                        ExampleAppWindow, main_timer);
+                                        YurnAppWin, main_timer);
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
-                                        ExampleAppWindow, previous_segment);
+                                        YurnAppWin, previous_segment);
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
-                                        ExampleAppWindow, best_possible_time);
+                                        YurnAppWin, best_possible_time);
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
-                                        ExampleAppWindow, personal_best);
+                                        YurnAppWin, personal_best);
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
-                                        ExampleAppWindow, splits);
+                                        YurnAppWin, splits);
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
-                                        ExampleAppWindow, split_scroller);
+                                        YurnAppWin, split_scroller);
   gtk_widget_class_bind_template_child (GTK_WIDGET_CLASS (class),
-                                        ExampleAppWindow, splits_box);
+                                        YurnAppWin, splits_box);
 }
 
 static void
-example_app_window_reload_game (ExampleAppWindow *win)
+yurn_app_win_reload_game (YurnAppWin *win)
 {
   assert (win->game);
 
   // order is important here!
-  example_app_window_clock_reset (win);
-  example_app_window_split_reset (win);
+  yurn_app_win_clock_reset (win);
+  yurn_app_win_split_reset (win);
 }
 
 static void
-example_app_window_new_game (ExampleAppWindow *win)
+yurn_app_win_new_game (YurnAppWin *win)
 {
   GameData             *game;
   char                  buffer[16];
@@ -518,24 +520,22 @@ example_app_window_new_game (ExampleAppWindow *win)
 
   sum_of_best_segments = 0.;
   for (uint8_t i = 0; i < game->nr_segments; ++i)
-  {
     sum_of_best_segments += game->segments[i]->best_seg;
-  }
   format_time (buffer, sum_of_best_segments, FALSE);
   gtk_label_set_text(GTK_LABEL (win->best_possible_time), buffer);
 
   gtk_widget_show_all (win->splits);
 }
 
-ExampleAppWindow *
-example_app_window_new (ExampleApp *app)
+YurnAppWin *
+yurn_app_win_new (YurnApp *app)
 {
-  return g_object_new (EXAMPLE_APP_WINDOW_TYPE, "application", app, NULL);
+  return g_object_new (YURN_APP_WIN_TYPE, "application", app, NULL);
 }
 
 void
-example_app_window_open (ExampleAppWindow *win,
-                         const char       *file)
+yurn_app_win_open (YurnAppWin *win,
+                   const char *file)
 {
   GameData             *game;
   
@@ -545,5 +545,5 @@ example_app_window_open (ExampleAppWindow *win,
 
   win->game = game;
   if (game)
-    example_app_window_new_game (win);
+    yurn_app_win_new_game (win);
 }

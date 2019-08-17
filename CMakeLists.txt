@@ -10,8 +10,8 @@ ADD_DEFINITIONS(${GTK3_CFLAGS_OTHER})
 
 add_custom_command(OUTPUT resources.c
   PRE_BUILD
-  COMMAND glib-compile-resources --generate --target=${CMAKE_BINARY_DIR}/resources.c exampleapp.gresource.xml
-  DEPENDS exampleapp.gresource.xml window.glade app-menu.ui
+  COMMAND glib-compile-resources --generate --target=${CMAKE_BINARY_DIR}/resources.c yurnapp.gresource.xml
+  DEPENDS yurnapp.gresource.xml window.glade app-menu.ui
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
 
@@ -25,8 +25,8 @@ add_custom_target(yurn_style DEPENDS yurn_style.h)
 
 add_executable(yurn
   main.c
-  exampleapp.c
-  exampleappwin.c
+  yurnapp.c
+  yurnappwin.c
   resources.c
   gamedata.c
   jsonparser.c)

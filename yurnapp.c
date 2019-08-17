@@ -1,18 +1,18 @@
 #include <gtk/gtk.h>
 #include <assert.h>
 
-#include "exampleapp.h"
-#include "exampleappwin.h"
+#include "yurnapp.h"
+#include "yurnappwin.h"
 
-struct _ExampleApp
+struct _YurnApp
 {
   GtkApplication parent;
 };
 
-G_DEFINE_TYPE(ExampleApp, example_app, GTK_TYPE_APPLICATION);
+G_DEFINE_TYPE(YurnApp, yurn_app, GTK_TYPE_APPLICATION);
 
 static void
-example_app_init (ExampleApp *app)
+yurn_app_init (YurnApp *app)
 {
 }
 
@@ -29,14 +29,14 @@ app_menu_open (GSimpleAction *action,
                GVariant      *parameter,
                gpointer      app)
 {
-  GList                   *windows;
-  GtkWidget               *dialog;
-  ExampleAppWindow        *win;
-  gint                    res;
-  char                    *filename;
+  GList                *windows;
+  GtkWidget            *dialog;
+  YurnAppWin           *win;
+  gint                 res;
+  char                 *filename;
 
   windows = gtk_application_get_windows (GTK_APPLICATION (app));
-  win = EXAMPLE_APP_WINDOW (windows->data);
+  win = YURN_APP_WIN (windows->data);
   assert (windows && "Windows should not be NULL here");
   dialog = gtk_file_chooser_dialog_new ("Open File", GTK_WINDOW (win),
                                         GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -46,7 +46,7 @@ app_menu_open (GSimpleAction *action,
   if (res == GTK_RESPONSE_ACCEPT)
   {
     filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-    example_app_window_open (win, filename);
+    yurn_app_win_open (win, filename);
     g_free (filename);
   }
   gtk_widget_destroy (dialog);
@@ -77,15 +77,15 @@ static GActionEntry app_entries[] =
 };
 
 static void
-example_app_startup (GApplication *app)
+yurn_app_startup (GApplication *app)
 {
-  GtkBuilder            *builder;
-  GMenuModel            *app_menu;
-  const gchar           *open_accels[2] = { "<Ctrl>O", NULL };
-  const gchar           *save_accels[2] = { "<Ctrl>S", NULL };
-  const gchar           *quit_accels[2] = { "<Ctrl>Q", NULL };
+  GtkBuilder           *builder;
+  GMenuModel           *app_menu;
+  const gchar          *open_accels[2] = { "<Ctrl>O", NULL };
+  const gchar          *save_accels[2] = { "<Ctrl>S", NULL };
+  const gchar          *quit_accels[2] = { "<Ctrl>Q", NULL };
 
-  G_APPLICATION_CLASS (example_app_parent_class)->startup (app);
+  G_APPLICATION_CLASS (yurn_app_parent_class)->startup (app);
 
   g_action_map_add_action_entries (G_ACTION_MAP (app),
                                    app_entries, G_N_ELEMENTS (app_entries),
@@ -103,52 +103,52 @@ example_app_startup (GApplication *app)
                                          quit_accels
                                          );
 
-  builder = gtk_builder_new_from_resource ("/org/gtk/exampleapp/app-menu.ui");
+  builder = gtk_builder_new_from_resource ("/org/gtk/yurn/app-menu.ui");
   app_menu = G_MENU_MODEL (gtk_builder_get_object (builder, "appmenu"));
   gtk_application_set_app_menu (GTK_APPLICATION (app), app_menu);
   g_object_unref (builder);
 }
 
 static void
-example_app_activate (GApplication *app)
+yurn_app_activate (GApplication *app)
 {
-  ExampleAppWindow *win;
+  YurnAppWin           *win;
 
-  win = example_app_window_new (EXAMPLE_APP (app));
+  win = yurn_app_win_new (YURN_APP (app));
   gtk_window_present (GTK_WINDOW (win));
 }
 
 static void
-example_app_open (GApplication *app,
-                  GFile        **files,
-                  gint         n_files,
-                  const gchar  *hint)
+yurn_app_open (GApplication  *app,
+               GFile        **files,
+               gint           n_files,
+               const gchar   *hint)
 {
-  GList                 *windows;
-  ExampleAppWindow      *win;
+  GList                *windows;
+  YurnAppWin           *win;
 
   windows = gtk_application_get_windows (GTK_APPLICATION (app));
   if (windows)
-    win = EXAMPLE_APP_WINDOW (windows->data);
+    win = YURN_APP_WIN (windows->data);
   else
-    win = example_app_window_new (EXAMPLE_APP (app));
+    win = yurn_app_win_new (YURN_APP (app));
 
   gtk_window_present (GTK_WINDOW (win));
 }
 
 static void
-example_app_class_init (ExampleAppClass *class)
+yurn_app_class_init (YurnAppClass *class)
 {
-  G_APPLICATION_CLASS (class)->startup = example_app_startup;
-  G_APPLICATION_CLASS (class)->activate = example_app_activate;
-  G_APPLICATION_CLASS (class)->open = example_app_open;
+  G_APPLICATION_CLASS (class)->startup = yurn_app_startup;
+  G_APPLICATION_CLASS (class)->activate = yurn_app_activate;
+  G_APPLICATION_CLASS (class)->open = yurn_app_open;
 }
 
-ExampleApp *
-example_app_new (void)
+YurnApp *
+yurn_app_new (void)
 {
-  return g_object_new (EXAMPLE_APP_TYPE,
-                       "application-id", "org.gtk.exampleapp",
+  return g_object_new (YURN_APP_TYPE,
+                       "application-id", "org.gtk.yurn",
                        "flags", G_APPLICATION_HANDLES_OPEN,
                        NULL);
 }
