@@ -10,9 +10,9 @@ G_DECLARE_FINAL_TYPE (YurnAppWin, yurn_app_win, YURN, APP_WIN,
                       GtkApplicationWindow)
 
 
-YurnAppWin             *yurn_app_win_new          (YurnApp *app);
-void                    yurn_app_win_open         (YurnAppWin *win,
-                                                   const char *file);
+YurnAppWin             *yurn_app_win_new                (YurnApp *app);
+void                    yurn_app_win_open               (YurnAppWin *win,
+                                                        const char *file);
 
 
 #endif /* __YURN_APP_WIN_H */
