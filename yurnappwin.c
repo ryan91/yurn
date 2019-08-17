@@ -19,7 +19,8 @@ static void             yurn_app_win_clock_reset        (YurnAppWin *win);
 static void             yurn_app_win_split_start        (YurnAppWin *win);
 static void             yurn_app_win_split_step         (YurnAppWin *win);
 static void             yurn_app_win_split_reset        (YurnAppWin *win);
-static void             yurn_app_win_set_prev_seg       (YurnAppWin *win);
+static void             yurn_app_win_prev_seg_set       (YurnAppWin *win);
+static void             yurn_app_win_prev_seg_reset     (YurnAppWin *win);
 static void             yurn_app_adjust_splits          (YurnAppWin *win);
 static GtkWidget       *yurn_app_win_get_cur_diff_lbl   (const YurnAppWin *win);
 static gboolean         yurn_app_win_on_keypress        (GtkWidget *widget,
@@ -241,6 +242,7 @@ yurn_app_win_reload_game (YurnAppWin *win)
   // order is important here!
   yurn_app_win_clock_reset (win);
   yurn_app_win_split_reset (win);
+  yurn_app_win_prev_seg_reset (win);
 }
 
 static void
@@ -290,7 +292,7 @@ yurn_app_win_split_step (YurnAppWin *win)
   GList *segs;
 
   segs = win->segments;
-  yurn_app_win_set_prev_seg (win);
+  yurn_app_win_prev_seg_set (win);
   if (segs->next)
   {
     remove_class (GTK_WIDGET (win->segments->data), "current-split");
@@ -309,17 +311,26 @@ yurn_app_win_split_step (YurnAppWin *win)
 static void
 yurn_app_win_split_reset (YurnAppWin *win)
 {
-  GList *segs;
+  GList                *segs;
+  GtkWidget            *seg;
+  GList                *seg_children;
+  GtkLabel             *diff_lbl;
 
   segs = win->segments;
   for (segs = gtk_container_get_children(GTK_CONTAINER (win->splits));
        segs != NULL; segs = segs->next)
-    remove_class (GTK_WIDGET (segs->data), "current-split");
+  {
+    seg = GTK_WIDGET (segs->data);
+    remove_class (seg, "current-split");
+    seg_children = gtk_container_get_children (GTK_CONTAINER (seg));
+    diff_lbl = GTK_LABEL (seg_children->next->data);
+    gtk_label_set_text (diff_lbl, "");
+  }
   win->segments = gtk_container_get_children (GTK_CONTAINER (win->splits));
   win->current_segment = win->game->segments;
 }
 
-static void yurn_app_win_set_prev_seg (YurnAppWin *win)
+static void yurn_app_win_prev_seg_set (YurnAppWin *win)
 {
   GtkWidget            *diff_lbl;
   GtkStyleContext      *context;
@@ -335,6 +346,11 @@ static void yurn_app_win_set_prev_seg (YurnAppWin *win)
   for (int i = 0; i < 4; ++i)
     if (gtk_style_context_has_class (context, split_css[i]))
       add_class (win->previous_segment, split_css[i]);
+}
+
+static void yurn_app_win_prev_seg_reset (YurnAppWin *win)
+{
+  gtk_label_set_text (GTK_LABEL (win->previous_segment), "");
 }
 
 static void
