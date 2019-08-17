@@ -26,14 +26,14 @@ quit_activated (GSimpleAction *action,
 
 static void
 app_menu_open (GSimpleAction *action,
-          GVariant      *parameter,
-          gpointer      app)
+               GVariant      *parameter,
+               gpointer      app)
 {
-  GList *windows;
-  GtkWidget *dialog;
-  ExampleAppWindow *win;
-  gint res;
-  char *filename;
+  GList                   *windows;
+  GtkWidget               *dialog;
+  ExampleAppWindow        *win;
+  gint                    res;
+  char                    *filename;
 
   windows = gtk_application_get_windows (GTK_APPLICATION (app));
   win = EXAMPLE_APP_WINDOW (windows->data);
@@ -54,16 +54,16 @@ app_menu_open (GSimpleAction *action,
 
 static void
 app_menu_save (GSimpleAction *action,
-          GVariant      *parameter,
-          gpointer      app)
+               GVariant      *parameter,
+               gpointer      app)
 {
   printf("TODO: save\n");
 }
 
 static void
-app_menu_reload (GSimpleAction *action,
-            GVariant      *parameter,
-            gpointer      app)
+app_menu_reload (GSimpleAction *action, 
+                 GVariant      *parameter,
+                 gpointer      app)
 {
   printf("TOOD: reload\n");
 }
@@ -79,11 +79,11 @@ static GActionEntry app_entries[] =
 static void
 example_app_startup (GApplication *app)
 {
-  GtkBuilder *builder;
-  GMenuModel *app_menu;
-  const gchar *open_accels[2] = { "<Ctrl>O", NULL };
-  const gchar *save_accels[2] = { "<Ctrl>S", NULL };
-  const gchar *quit_accels[2] = { "<Ctrl>Q", NULL };
+  GtkBuilder            *builder;
+  GMenuModel            *app_menu;
+  const gchar           *open_accels[2] = { "<Ctrl>O", NULL };
+  const gchar           *save_accels[2] = { "<Ctrl>S", NULL };
+  const gchar           *quit_accels[2] = { "<Ctrl>Q", NULL };
 
   G_APPLICATION_CLASS (example_app_parent_class)->startup (app);
 
@@ -119,13 +119,13 @@ example_app_activate (GApplication *app)
 }
 
 static void
-example_app_open (GApplication  *app,
+example_app_open (GApplication *app,
                   GFile        **files,
-                  gint           n_files,
-                  const gchar   *hint)
+                  gint         n_files,
+                  const gchar  *hint)
 {
-  GList *windows;
-  ExampleAppWindow *win;
+  GList                 *windows;
+  ExampleAppWindow      *win;
 
   windows = gtk_application_get_windows (GTK_APPLICATION (app));
   if (windows)

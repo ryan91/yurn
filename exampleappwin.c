@@ -17,61 +17,65 @@ typedef enum _TimerState
   TIMER_PAUSED,
   TIMER_STOPPED,
   TIMER_FINISHED
+
 } TimerState;
 
 struct _ExampleAppWindow
 {
   GtkApplicationWindow parent;
 
-  GtkWidget *title;
-  GtkWidget *nr_tries;
-  GtkWidget *main_timer;
-  GtkWidget *previous_segment;
-  GtkWidget *best_possible_time;
-  GtkWidget *personal_best;
-  GtkWidget *splits;
-  GtkWidget *split_scroller;
-  GtkWidget *last_split;
-  GtkWidget *splits_box;
-  Segment   **current_segment;
+  GtkWidget            *title;
+  GtkWidget            *nr_tries;
+  GtkWidget            *main_timer;
+  GtkWidget            *previous_segment;
+  GtkWidget            *best_possible_time;
+  GtkWidget            *personal_best;
+  GtkWidget            *splits;
+  GtkWidget            *split_scroller;
+  GtkWidget            *last_split;
+  GtkWidget            *splits_box;
+  Segment             **current_segment;
 
-  GameData *game;
-  GTimer *timer;
-  char current_time[16];
-  char old_time[16];
-  char current_diff_to_pb[16];
-  char old_diff_to_pb[16];
-  TimerState timer_state;
-  GList *segments;
-  gboolean last_split_active;
+  GameData             *game;
+  GTimer               *timer;
+  char                  current_time[16];
+  char                  old_time[16];
+  char                  current_diff_to_pb[16];
+  char                  old_diff_to_pb[16];
+  TimerState            timer_state;
+  GList                *segments;
+  gboolean              last_split_active;
 };
 
 G_DEFINE_TYPE (ExampleAppWindow, example_app_window, GTK_TYPE_APPLICATION_WINDOW)
 
 static inline void
-add_class(GtkWidget *widget, const char *class) {
+add_class(GtkWidget *widget, const char *class)
+{
   gtk_style_context_add_class(gtk_widget_get_style_context(widget), class);
 }
 
 static inline void
-remove_class(GtkWidget *widget, const char *class) {
+remove_class(GtkWidget *widget, const char *class)
+{
   gtk_style_context_remove_class(gtk_widget_get_style_context(widget), class);
 }
 
 static GtkWidget *
 example_app_window_get_cur_diff_lbl (const ExampleAppWindow *win)
 {
-  GList *children;
-  assert (win->segments);
+  GList                *children;
 
+  assert (win->segments);
   children = gtk_container_get_children (win->segments->data);
+
   return children->next->data;
 }
 
 static void
 example_app_window_clock_reset (ExampleAppWindow *win)
 {
-  GTimer *timer;
+  GTimer               *timer;
 
   timer = win->timer;
   gtk_label_set_text (GTK_LABEL (win->main_timer), "00.0");
@@ -111,9 +115,9 @@ example_app_window_split_start (ExampleAppWindow *win)
 
 static void example_app_set_previous_segment (ExampleAppWindow *win)
 {
-  GtkWidget *diff_lbl;
-  GtkStyleContext *context;
-  const gchar split_css[4][12] =
+  GtkWidget            *diff_lbl;
+  GtkStyleContext      *context;
+  const gchar           split_css[4][12] =
     { "split-gold", "split-green", "split-red", "split-losing" };
 
   diff_lbl = example_app_window_get_cur_diff_lbl (win);
@@ -130,12 +134,12 @@ static void example_app_set_previous_segment (ExampleAppWindow *win)
 static void
 example_app_adjust_split_scroll (ExampleAppWindow *win)
 {
-  gint dest_y;
-  GtkScrolledWindow *scroll;
-  GtkAdjustment *adjust;
-  GtkWidget *cur_seg;
-  int scroll_height;
-  int cur_height;
+  gint                  dest_y;
+  GtkScrolledWindow    *scroll;
+  GtkAdjustment        *adjust;
+  GtkWidget            *cur_seg;
+  int                   scroll_height;
+  int                   cur_height;
 
   scroll = GTK_SCROLLED_WINDOW (win->split_scroller);
   adjust = gtk_scrolled_window_get_vadjustment (scroll);
@@ -148,9 +152,7 @@ example_app_adjust_split_scroll (ExampleAppWindow *win)
   cur_height = gtk_widget_get_allocated_height (cur_seg);
 
   if (cur_height + dest_y > scroll_height)
-  {
     gtk_adjustment_set_value (adjust, dest_y + cur_height - scroll_height);
-  }
 }
 
 static void
@@ -193,11 +195,13 @@ format_time (char *buffer,
              const YurnTime time,
              const gboolean display_sign)
 {
-  YurnTime seconds = time;
-  char hours, minutes;
-  char format_str[32];
-  char *ci;
+  YurnTime              seconds;
+  char                  hours;
+  char                  minutes;
+  char                  format_str[32];
+  char                 *ci;
 
+  seconds = time;
   hours = seconds / 3600;
   seconds -= 3600 * hours;
   minutes = seconds / 60;
@@ -251,9 +255,7 @@ handle_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
   state = win->timer_state;
 
   if (!win->game)
-  {
     return FALSE;
-  }
 
   switch (event->keyval)
   {
@@ -289,11 +291,11 @@ handle_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 static gboolean
 poll_time (gpointer data)
 {
-  double seconds;
-  double diff_to_current_segment;
-  double diff_to_best_seg;
-  ExampleAppWindow *win;
-  GtkLabel *diff_lbl;
+  double                seconds;
+  double                diff_to_current_segment;
+  double                diff_to_best_seg;
+  ExampleAppWindow     *win;
+  GtkLabel             *diff_lbl;
 
   win = EXAMPLE_APP_WINDOW (data);
 
@@ -342,14 +344,14 @@ poll_time (gpointer data)
 static gboolean
 handle_scroller_change (GtkAdjustment *adjust, gpointer data)
 {
-  ExampleAppWindow               *win;
-  GtkContainer                   *splits;
-  GtkContainer                   *splits_box;
-  GtkWidget                      *last_split;
-  double                         current_scroll;
-  double                         max_scroll;
-  double                         page_size;
-  gboolean                       last_split_active;
+  ExampleAppWindow     *win;
+  GtkContainer         *splits;
+  GtkContainer         *splits_box;
+  GtkWidget            *last_split;
+  double                current_scroll;
+  double                max_scroll;
+  double                page_size;
+  gboolean              last_split_active;
 
   win            = EXAMPLE_APP_WINDOW (data);
 
@@ -388,10 +390,10 @@ handle_scroller_change (GtkAdjustment *adjust, gpointer data)
 static void
 example_app_window_init (ExampleAppWindow *win)
 {
-  GtkCssProvider *win_style;
-  GdkScreen *screen;
-  GdkDisplay *display;
-  GtkAdjustment *adjust;
+  GtkCssProvider       *win_style;
+  GdkScreen            *screen;
+  GdkDisplay           *display;
+  GtkAdjustment        *adjust;
 
   win->timer = g_timer_new ();
   g_timer_stop (win->timer);
@@ -414,9 +416,8 @@ example_app_window_init (ExampleAppWindow *win)
   win_style = gtk_css_provider_new ();
   display = gdk_display_get_default ();
   screen = gdk_display_get_default_screen (display);
-  gtk_style_context_add_provider_for_screen (
-      screen,
-      GTK_STYLE_PROVIDER(win_style),
+  gtk_style_context_add_provider_for_screen
+    ( screen, GTK_STYLE_PROVIDER (win_style),
       GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
   gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (win_style),
                                    (char *) yurn_css, yurn_css_len, NULL);
@@ -464,16 +465,15 @@ example_app_window_reload_game (ExampleAppWindow *win)
 static void
 example_app_window_new_game (ExampleAppWindow *win)
 {
-  GameData *game;
-  char buffer[16];
-  GtkWidget *splits;
-  GtkWidget *hbox;
-  // GtkWidget *expand_box;
-  GtkWidget *split_title;
-  GtkWidget *split_time;
-  GtkWidget *compare_to_pb;
-  Segment *seg;
-  YurnTime sum_of_best_segments;
+  GameData             *game;
+  char                  buffer[16];
+  GtkWidget            *splits;
+  GtkWidget            *hbox;
+  GtkWidget            *split_title;
+  GtkWidget            *split_time;
+  GtkWidget            *compare_to_pb;
+  Segment              *seg;
+  YurnTime              sum_of_best_segments;
 
   game = win->game;
   gtk_label_set_text (GTK_LABEL (win->title), game->title);
@@ -481,10 +481,9 @@ example_app_window_new_game (ExampleAppWindow *win)
   gtk_label_set_text (GTK_LABEL (win->nr_tries), buffer);
   splits = win->splits;
 
-  for (uint8_t i = 0; i < game->nr_segments; ++i) {
+  for (uint8_t i = 0; i < game->nr_segments; ++i)
+  {
     seg = game->segments[i];
-    // expand_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-    // gtk_widget_set_hexpand (expand_box, TRUE);
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     if (i % 2 > 0)
       add_class (hbox, "splits-odd");
@@ -501,12 +500,10 @@ example_app_window_new_game (ExampleAppWindow *win)
     {
       format_time (buffer, seg->pb_run, FALSE);
       gtk_label_set_text (GTK_LABEL (split_time), buffer);
-    } else
-    {
-      gtk_label_set_text (GTK_LABEL (split_time), "-");
     }
+    else
+      gtk_label_set_text (GTK_LABEL (split_time), "-");
     gtk_container_add (GTK_CONTAINER (hbox), split_title);
-    // gtk_container_add (GTK_CONTAINER (hbox), expand_box);
     gtk_container_add (GTK_CONTAINER (hbox), compare_to_pb);
     gtk_container_add (GTK_CONTAINER (hbox), split_time);
     gtk_container_add (GTK_CONTAINER (splits), hbox);
@@ -540,11 +537,13 @@ void
 example_app_window_open (ExampleAppWindow *win,
                          const char       *file)
 {
-  GameData *game = json_parser_read_file(file);
+  GameData             *game;
+  
+  game = json_parser_read_file(file);
+
   // TODO unload old game if existed
+
   win->game = game;
   if (game)
-  {
     example_app_window_new_game (win);
-  }
 }

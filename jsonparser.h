@@ -3,7 +3,6 @@
 
 #include "gamedata.h"
 
-GameData *
-json_parser_read_file (const char *filename);
+GameData               *json_parser_read_file          (const char *filename);
 
-#endif
+#endif /* __JSON_PARSER_H */
