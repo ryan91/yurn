@@ -537,12 +537,6 @@ yurn_app_fetch_time (gpointer data)
   yurn_app_take_timestamp (win, &seconds);
   game    = win->game;
 
-  if (!(*win->current_segment)->pb_run)
-  {
-    remove_class (GTK_WIDGET (win->main_timer), "timer-red");
-    return TRUE;
-  }
-
   diff_to_current_segment = seconds - (*(win->current_segment))->pb_run;
   diff_to_best_seg = seconds - (*(win->current_segment))->best_seg;
 
@@ -550,8 +544,11 @@ yurn_app_fetch_time (gpointer data)
 
   if (strcmp (win->current_time, win->old_time))
   {
+
     gtk_label_set_text (GTK_LABEL (win->main_timer), win->current_time);
-    if (diff_to_current_segment < 0)
+    if (!(*(win->current_segment))->best_seg ||
+        !(*(win->current_segment))->pb_run ||
+        diff_to_current_segment < 0)
     {
       remove_class (GTK_WIDGET (win->main_timer), "timer-red");
       remove_class (GTK_WIDGET (win->main_timer), "timer-losing");
@@ -567,11 +564,16 @@ yurn_app_fetch_time (gpointer data)
     strcpy (win->old_time, win->current_time);
   }
 
+  if (!(*(win->current_segment))->best_seg ||
+      !(*(win->current_segment))->pb_run)
+    return TRUE;
+
   if (diff_to_best_seg > -15.)
   {
     format_time (win->current_diff_to_pb, diff_to_current_segment, TRUE);
     if (strcmp (win->current_diff_to_pb, win->old_diff_to_pb))
     {
+        
       diff_lbl = GTK_LABEL (yurn_app_win_get_cur_diff_lbl (win));
       gtk_label_set_text (diff_lbl, win->current_diff_to_pb);
       strcpy (win->old_diff_to_pb, win->current_diff_to_pb);
