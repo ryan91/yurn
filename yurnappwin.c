@@ -23,6 +23,8 @@ static void             yurn_app_win_prev_seg_set       (YurnAppWin *win);
 static void             yurn_app_win_prev_seg_reset     (YurnAppWin *win);
 static void             yurn_app_adjust_splits          (YurnAppWin *win);
 static void             yurn_app_win_calc_best_segs     (YurnAppWin *win);
+static void             yurn_app_take_timestamp         (YurnAppWin *win,
+                                                         double     *ts);
 static GtkWidget       *yurn_app_win_get_cur_diff_lbl   (const YurnAppWin *win);
 static gboolean         yurn_app_win_on_keypress        (GtkWidget *widget,
                                                          GdkEventKey *event,
@@ -69,6 +71,7 @@ struct _YurnAppWin
   GList                *segments;
   gboolean              last_split_active;
   YurnTime              sum_of_remaining_splits;
+  YurnTime              seg_start_timestamp;
 };
 
 G_DEFINE_TYPE (YurnAppWin, yurn_app_win, GTK_TYPE_APPLICATION_WINDOW)
@@ -287,14 +290,24 @@ yurn_app_win_split_start (YurnAppWin *win)
 
   add_class (GTK_WIDGET (win->segments->data), "current-split");
   yurn_app_win_calc_best_segs (win);
+  win->seg_start_timestamp = 0;
 }
 
 static void
 yurn_app_win_split_step (YurnAppWin *win)
 {
-  GList *segs;
+  GList                *segs;
+  Segment              *cur_seg;
+  YurnTime              seconds;
 
   segs = win->segments;
+  cur_seg = *win->current_segment;
+  yurn_app_take_timestamp (win, &seconds);
+
+  if (cur_seg->pb_run > seconds)
+    cur_seg->pb_run = seconds;
+  if (cur_seg->best_seg > seconds - win->seg_start_timestamp)
+    cur_seg->best_seg = seconds - win->seg_start_timestamp;
   yurn_app_win_prev_seg_set (win);
   if (segs->next)
   {
@@ -398,6 +411,12 @@ yurn_app_win_calc_best_segs (YurnAppWin *win)
     sum += (*iter)->best_seg;
   }
   win->sum_of_remaining_splits = sum;
+}
+
+static void
+yurn_app_take_timestamp (YurnAppWin *win, double *ts)
+{
+  *ts = g_timer_elapsed (win->timer, NULL);
 }
 
 static GtkWidget *
@@ -515,7 +534,7 @@ yurn_app_fetch_time (gpointer data)
   if (win->timer_state != TIMER_STARTED)
     return TRUE;
 
-  seconds = g_timer_elapsed (win->timer, NULL);
+  yurn_app_take_timestamp (win, &seconds);
   game    = win->game;
 
   if (!(*win->current_segment)->pb_run)
