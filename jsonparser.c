@@ -20,6 +20,7 @@ json_parser_read_file (const char *filename)
   json_t                *ref;
   json_t                *splits;
   size_t                nr_splits;
+  size_t                i;
   json_error_t          error;
   GameData              *game;
   Segment               *seg;
@@ -52,7 +53,7 @@ json_parser_read_file (const char *filename)
   if (splits)
   {
     nr_splits = json_array_size (splits);
-    for (size_t i = 0; i < nr_splits; ++i)
+    for (i = 0; i < nr_splits; ++i)
     {
       json_segment = json_array_get (splits, i);
       seg = game_segment_new ();
@@ -68,6 +69,7 @@ json_parser_read_file (const char *filename)
       game_data_add_segment (game, seg);
     }
   }
+  game_data_add_segment (game, NULL);
 
   json_segment = json_object_get (root, "world_record");
   if (json_segment)

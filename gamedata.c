@@ -46,5 +46,7 @@ game_data_add_segment (GameData *game, Segment *seg)
     printf("Error: Maximum number of segments has been reached\n");
     return;
   }
-  game->segments[game->nr_segments++] = seg;
+  game->segments[game->nr_segments] = seg;
+  if (seg)
+    game->nr_segments++;
 }

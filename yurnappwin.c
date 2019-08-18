@@ -22,6 +22,7 @@ static void             yurn_app_win_split_reset        (YurnAppWin *win);
 static void             yurn_app_win_prev_seg_set       (YurnAppWin *win);
 static void             yurn_app_win_prev_seg_reset     (YurnAppWin *win);
 static void             yurn_app_adjust_splits          (YurnAppWin *win);
+static void             yurn_app_win_calc_best_segs     (YurnAppWin *win);
 static GtkWidget       *yurn_app_win_get_cur_diff_lbl   (const YurnAppWin *win);
 static gboolean         yurn_app_win_on_keypress        (GtkWidget *widget,
                                                          GdkEventKey *event,
@@ -67,6 +68,7 @@ struct _YurnAppWin
   TimerState            timer_state;
   GList                *segments;
   gboolean              last_split_active;
+  YurnTime              sum_of_remaining_splits;
 };
 
 G_DEFINE_TYPE (YurnAppWin, yurn_app_win, GTK_TYPE_APPLICATION_WINDOW)
@@ -284,6 +286,7 @@ yurn_app_win_split_start (YurnAppWin *win)
   assert (win->segments->data);
 
   add_class (GTK_WIDGET (win->segments->data), "current-split");
+  yurn_app_win_calc_best_segs (win);
 }
 
 static void
@@ -306,6 +309,7 @@ yurn_app_win_split_step (YurnAppWin *win)
     remove_class (GTK_WIDGET (win->segments->data), "current-split");
     win->timer_state = TIMER_FINISHED;
   }
+  yurn_app_win_calc_best_segs (win);
 }
 
 static void
@@ -375,6 +379,25 @@ yurn_app_adjust_splits (YurnAppWin *win)
 
   if (cur_height + dest_y > scroll_height)
     gtk_adjustment_set_value (adjust, dest_y + cur_height - scroll_height);
+}
+
+static void
+yurn_app_win_calc_best_segs (YurnAppWin *win)
+{
+  Segment             **iter;
+  YurnTime              sum;
+
+  sum = 0;
+  for (iter = win->current_segment + 1; *iter != NULL; ++iter)
+  {
+    if (!(*iter)->best_seg)
+    {
+      win->sum_of_remaining_splits = -1.;
+      return;
+    }
+    sum += (*iter)->best_seg;
+  }
+  win->sum_of_remaining_splits = sum;
 }
 
 static GtkWidget *
@@ -485,6 +508,7 @@ yurn_app_fetch_time (gpointer data)
   double                diff_to_best_seg;
   YurnAppWin           *win;
   GtkLabel             *diff_lbl;
+  const GameData       *game;
 
   win = YURN_APP_WIN (data);
 
@@ -492,6 +516,13 @@ yurn_app_fetch_time (gpointer data)
     return TRUE;
 
   seconds = g_timer_elapsed (win->timer, NULL);
+  game    = win->game;
+
+  if (!(*win->current_segment)->pb_run)
+  {
+    remove_class (GTK_WIDGET (win->main_timer), "timer-red");
+    return TRUE;
+  }
 
   diff_to_current_segment = seconds - (*(win->current_segment))->pb_run;
   diff_to_best_seg = seconds - (*(win->current_segment))->best_seg;
@@ -502,9 +533,18 @@ yurn_app_fetch_time (gpointer data)
   {
     gtk_label_set_text (GTK_LABEL (win->main_timer), win->current_time);
     if (diff_to_current_segment < 0)
+    {
       remove_class (GTK_WIDGET (win->main_timer), "timer-red");
+      remove_class (GTK_WIDGET (win->main_timer), "timer-losing");
+    }
     else
-      add_class (GTK_WIDGET (win->main_timer), "timer-red");
+    {
+      if (seconds + win->sum_of_remaining_splits >
+          game->segments[game->nr_segments - 1]->pb_run)
+        add_class (GTK_WIDGET (win->main_timer), "split-losing");
+      else
+        add_class (GTK_WIDGET (win->main_timer), "split-red");
+    }
     strcpy (win->old_time, win->current_time);
   }
 
@@ -521,9 +561,10 @@ yurn_app_fetch_time (gpointer data)
         add_class (GTK_WIDGET (diff_lbl), "split-gold");
       else if (diff_to_current_segment < 0)
         add_class (GTK_WIDGET (diff_lbl), "split-green");
-      else
+      else if (diff_to_current_segment < 60.)
         add_class (GTK_WIDGET (diff_lbl), "split-red");
-      // TODO split-losing
+      else
+        add_class (GTK_WIDGET (diff_lbl), "split-losing");
     }
   }
 
