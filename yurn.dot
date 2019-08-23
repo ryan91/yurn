@@ -1,0 +1,28 @@
+digraph Y {
+  "Launch App"    [ shape = box ];
+  "Read JSON"     [ shape = box ];
+  "Start Timer"   [ shape = box ];
+  "Show Error"    [ shape = box ];
+  "Reset Timer"   [ shape = box ];
+  "Last Split?"   [ shape = box ];
+  "Stop Timer"    [ shape = box ];
+  "Advance Split" [ shape = box ];
+  "Launch App"      -> "Initial State"
+  "Initial State"   -> "Read JSON"            [ label = "Open" ]
+  "Read JSON"       -> "Game loaded"          [ label = "Valid JSON" ]
+  "Read JSON"       -> "Show Error"           [ label = "Invalid JSON" ]
+  "Show Error"      -> "Initial State"
+  "Game loaded"     -> "Start Timer"          [ label = "Key: Space" ]
+  "Start Timer"     -> "Timer Running"
+  "Timer Running"   -> "Timer Paused"         [ label = "Key: F3" ]
+  "Timer Paused"    -> "Timer Running"        [ label = "Key: F3" ]
+  "Timer Running"   -> "Reset Timer"          [ label = "key: F5" ]
+  "Timer Paused"    -> "Reset Timer"          [ label = "key: F5" ]
+  "Reset Timer"     -> "Game loaded"
+  "Timer Running"   -> "Last Split?"          [ label = "Key: Space" ]
+  "Last Split?"     -> "Advance Split"        [ label = "No" ]
+  "Last Split?"     -> "Stop Timer"           [ label = "Yes" ]
+  "Advance Split"   -> "Timer Running"
+  "Stop Timer"      -> "Run finished"
+  "Run finished"    -> "Reset Timer"          [ label = "Key: F5" ]
+}

@@ -36,6 +36,26 @@ static void             format_time                     (char            *buffer
                                                          const YurnTime   time,
                                                          const gboolean   display_sign);
 
+typedef enum _YurnState
+{
+  YURN_STATE_INITIAL,
+  YURN_STATE_GAME_LOADED,
+  YURN_STATE_TIMER_RUNNING,
+  YURN_STATE_TIMER_PAUSED,
+  YURN_STATE_RUN_FINISHED
+} YurnState;
+
+typedef enum _YurnInput
+{
+  YURN_INPUT_SPACE,
+  YURN_INPUT_F5,
+  YURN_INPUT_F3,
+  YURN_INPUT_OPEN,
+  YURN_INPUT_SAVE,
+  YURN_INPUT_RELOAD,
+  YURN_INPUT_QUIT
+} YurnInput;
+
 typedef enum _TimerState
 {
   TIMER_STARTED,
