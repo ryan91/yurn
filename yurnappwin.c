@@ -7,6 +7,7 @@
 #include "yurnapp.h"
 #include "yurnappwin.h"
 #include "jsonparser.h"
+#include "yurn_state_machine.h"
 
 static void             yurn_app_win_init               (YurnAppWin *win);
 static void             yurn_app_win_class_init         (YurnAppWinClass *class);
@@ -36,26 +37,6 @@ static void             format_time                     (char            *buffer
                                                          const YurnTime   time,
                                                          const gboolean   display_sign);
 
-typedef enum _YurnState
-{
-  YURN_STATE_INITIAL,
-  YURN_STATE_GAME_LOADED,
-  YURN_STATE_TIMER_RUNNING,
-  YURN_STATE_TIMER_PAUSED,
-  YURN_STATE_RUN_FINISHED
-} YurnState;
-
-typedef enum _YurnInput
-{
-  YURN_INPUT_SPACE,
-  YURN_INPUT_F5,
-  YURN_INPUT_F3,
-  YURN_INPUT_OPEN,
-  YURN_INPUT_SAVE,
-  YURN_INPUT_RELOAD,
-  YURN_INPUT_QUIT
-} YurnInput;
-
 typedef enum _TimerState
 {
   TIMER_STARTED,
@@ -83,6 +64,7 @@ struct _YurnAppWin
 
   GameData             *game;
   GTimer               *timer;
+  char                  current_json_file[128];
   char                  current_time[16];
   char                  old_time[16];
   char                  current_diff_to_pb[16];
@@ -96,6 +78,106 @@ struct _YurnAppWin
 
 G_DEFINE_TYPE (YurnAppWin, yurn_app_win, GTK_TYPE_APPLICATION_WINDOW)
 
+static inline void
+add_class(GtkWidget *widget, const char *class)
+{
+  gtk_style_context_add_class(gtk_widget_get_style_context(widget), class);
+}
+
+static inline void
+remove_class(GtkWidget *widget, const char *class)
+{
+  gtk_style_context_remove_class(gtk_widget_get_style_context(widget), class);
+}
+
+static YurnState
+yurn_app_win_read_json (gpointer data)
+{
+  YurnAppWin  *win;
+  GameData    *game;
+
+  win = YURN_APP_WIN (data);
+  game = json_parser_read_file (win->current_json_file);
+  if (game)
+  {
+    win->game = game;
+    yurn_app_win_new_game (win);
+    return YURN_STATE_GAME_LOADED;
+  }
+  else
+  {
+    // TODO show error message
+    return YURN_STATE_INITIAL;
+  }
+}
+
+static YurnState
+yurn_app_win_start_timer (gpointer data)
+{
+  YurnAppWin *win;
+
+  win = YURN_APP_WIN (data);
+  g_timer_start (win->timer);
+  return YURN_STATE_TIMER_RUNNING;
+}
+
+static YurnState
+yurn_app_win_pause_timer (gpointer data)
+{
+  YurnAppWin *win;
+
+  win = YURN_APP_WIN (data);
+  g_timer_stop (win->timer);
+  return YURN_STATE_TIMER_PAUSED;
+}
+
+static YurnState
+yurn_app_win_resume_timer (gpointer data)
+{
+  YurnAppWin *win;
+
+  win = YURN_APP_WIN (data);
+  g_timer_continue (win->timer);
+  return YURN_STATE_TIMER_RUNNING;
+}
+
+static YurnState
+yurn_app_win_advance_split (gpointer data)
+{
+  YurnAppWin  *win;
+  GList       *segs;
+
+  win = YURN_APP_WIN (data);
+  segs = win->segments;
+
+  if (segs->next)
+  {
+    remove_class (GTK_WIDGET (segs->data), "current-split");
+    win->segments = win->segments->next;
+    add_class (GTK_WIDGET (win->segments->data), "current-split");
+    ++(win->current_segment);
+    yurn_app_adjust_splits (win);
+    return YURN_STATE_TIMER_RUNNING;
+  }
+  else
+  {
+    remove_class (GTK_WIDGET (win->segments->data), "current-split");
+    return YURN_STATE_RUN_FINISHED;
+  }
+}
+
+static YurnState
+yurn_app_win_reload (gpointer data)
+{
+  YurnAppWin *win;
+
+  win = YURN_APP_WIN (data);
+  yurn_app_win_clock_reset (win);
+  yurn_app_win_split_reset (win);
+  yurn_app_win_prev_seg_reset (win);
+  return YURN_STATE_GAME_LOADED;
+}
+
 YurnAppWin *
 yurn_app_win_new (YurnApp *app)
 {
@@ -107,7 +189,7 @@ yurn_app_win_open (YurnAppWin *win,
                    const char *file)
 {
   GameData             *game;
-  
+
   game = json_parser_read_file(file);
 
   // TODO unload old game if existed
@@ -115,18 +197,6 @@ yurn_app_win_open (YurnAppWin *win,
   win->game = game;
   if (game)
     yurn_app_win_new_game (win);
-}
-
-static inline void
-add_class(GtkWidget *widget, const char *class)
-{
-  gtk_style_context_add_class(gtk_widget_get_style_context(widget), class);
-}
-
-static inline void
-remove_class(GtkWidget *widget, const char *class)
-{
-  gtk_style_context_remove_class(gtk_widget_get_style_context(widget), class);
 }
 
 static void
@@ -169,6 +239,24 @@ yurn_app_win_init (YurnAppWin *win)
 
   g_signal_connect (G_OBJECT (adjust), "value-changed",
                     G_CALLBACK (yurn_app_on_split_scroll), win);
+
+  //////////////////////////////////////////
+
+  yurn_sm_set_global_transition (YURN_INPUT_OPEN, yurn_app_win_read_json);
+  yurn_sm_set_transition (YURN_STATE_GAME_LOADED, YURN_INPUT_SPACE,
+                          yurn_app_win_start_timer);
+  yurn_sm_set_transition (YURN_STATE_TIMER_RUNNING, YURN_INPUT_F3,
+                          yurn_app_win_pause_timer);
+  yurn_sm_set_transition (YURN_STATE_TIMER_RUNNING, YURN_INPUT_F5,
+                          yurn_app_win_reload);
+  yurn_sm_set_transition (YURN_STATE_TIMER_RUNNING, YURN_INPUT_SPACE,
+                          yurn_app_win_advance_split);
+  yurn_sm_set_transition (YURN_STATE_TIMER_PAUSED, YURN_INPUT_F3,
+                          yurn_app_win_resume_timer);
+  yurn_sm_set_transition (YURN_STATE_TIMER_PAUSED, YURN_INPUT_F5,
+                          yurn_app_win_reload);
+  yurn_sm_set_transition (YURN_STATE_RUN_FINISHED, YURN_INPUT_F5,
+                          yurn_app_win_reload);
 }
 
 static void
@@ -453,6 +541,7 @@ yurn_app_win_get_cur_diff_lbl (const YurnAppWin *win)
 static gboolean
 yurn_app_win_on_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
+  /*
   YurnAppWin           *win;
   TimerState            state;
 
@@ -461,7 +550,18 @@ yurn_app_win_on_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 
   if (!win->game)
     return FALSE;
+  */
 
+  switch (event->keyval)
+  {
+    case GDK_KEY_space: yurn_sm_transition (YURN_INPUT_SPACE, data); break;
+    case GDK_KEY_F3:    yurn_sm_transition (YURN_INPUT_F3, data); break;
+    case GDK_KEY_F5:    yurn_sm_transition (YURN_INPUT_F5, data); break;
+  }
+
+  return TRUE;
+
+  /*
   switch (event->keyval)
   {
     case GDK_KEY_space:
@@ -491,6 +591,7 @@ yurn_app_win_on_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
     default:
       return FALSE;
   }
+  */
 }
 
 static gboolean
@@ -593,7 +694,7 @@ yurn_app_fetch_time (gpointer data)
     format_time (win->current_diff_to_pb, diff_to_current_segment, TRUE);
     if (strcmp (win->current_diff_to_pb, win->old_diff_to_pb))
     {
-        
+
       diff_lbl = GTK_LABEL (yurn_app_win_get_cur_diff_lbl (win));
       gtk_label_set_text (diff_lbl, win->current_diff_to_pb);
       strcpy (win->old_diff_to_pb, win->current_diff_to_pb);

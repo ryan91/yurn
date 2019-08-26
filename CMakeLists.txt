@@ -29,7 +29,8 @@ add_executable(yurn
   yurnappwin.c
   resources.c
   gamedata.c
-  jsonparser.c)
+  jsonparser.c
+  yurn_state_machine.c)
 target_link_libraries(yurn PRIVATE ${GTK3_LIBRARIES} jansson)
 target_include_directories(yurn PRIVATE ${CMAKE_BINARY_DIR})
 target_compile_options(yurn PRIVATE -Wall)

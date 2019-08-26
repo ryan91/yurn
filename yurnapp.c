@@ -3,6 +3,7 @@
 
 #include "yurnapp.h"
 #include "yurnappwin.h"
+#include "yurn_state_machine.h"
 
 struct _YurnApp
 {
@@ -11,9 +12,16 @@ struct _YurnApp
 
 G_DEFINE_TYPE(YurnApp, yurn_app, GTK_TYPE_APPLICATION);
 
+static YurnState yurn_app_quit (gpointer app)
+{
+  g_application_quit (G_APPLICATION (app));
+  return YURN_STATE_INITIAL;
+}
+
 static void
 yurn_app_init (YurnApp *app)
 {
+  yurn_sm_set_global_transition (YURN_INPUT_QUIT, yurn_app_quit);
 }
 
 static void
@@ -21,7 +29,7 @@ quit_activated (GSimpleAction *action,
                 GVariant      *parameter,
                 gpointer       app)
 {
-  g_application_quit (G_APPLICATION (app));
+  yurn_sm_transition (YURN_INPUT_QUIT, app);
 }
 
 static void
@@ -30,12 +38,15 @@ app_menu_open (GSimpleAction *action,
                gpointer      app)
 {
   GList                *windows;
+
+  windows = gtk_application_get_windows (GTK_APPLICATION (app));
+  yurn_sm_transition (YURN_INPUT_OPEN, windows->data);
+  /*
   GtkWidget            *dialog;
   YurnAppWin           *win;
   gint                 res;
   char                 *filename;
 
-  windows = gtk_application_get_windows (GTK_APPLICATION (app));
   win = YURN_APP_WIN (windows->data);
   assert (windows && "Windows should not be NULL here");
   dialog = gtk_file_chooser_dialog_new ("Open File", GTK_WINDOW (win),
@@ -50,6 +61,7 @@ app_menu_open (GSimpleAction *action,
     g_free (filename);
   }
   gtk_widget_destroy (dialog);
+  */
 }
 
 static void
@@ -57,7 +69,10 @@ app_menu_save (GSimpleAction *action,
                GVariant      *parameter,
                gpointer      app)
 {
-  printf("TODO: save\n");
+  GList                *windows;
+
+  windows = gtk_application_get_windows (GTK_APPLICATION (app));
+  yurn_sm_transition (YURN_INPUT_SAVE, windows->data);
 }
 
 static void
@@ -65,7 +80,10 @@ app_menu_reload (GSimpleAction *action,
                  GVariant      *parameter,
                  gpointer      app)
 {
-  printf("TOOD: reload\n");
+  GList                *windows;
+
+  windows = gtk_application_get_windows (GTK_APPLICATION (app));
+  yurn_sm_transition (YURN_INPUT_RELOAD, windows->data);
 }
 
 static GActionEntry app_entries[] =
