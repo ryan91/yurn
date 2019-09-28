@@ -10,7 +10,7 @@
       <placeholder/>
     </child>
     <child>
-      <object class="GtkBox" id="content_box">
+      <object class="GtkBox" id="ui.content_box">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
@@ -19,7 +19,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkLabel" id="title">
+              <object class="GtkLabel" id="ui.title">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="halign">start</property>
@@ -35,7 +35,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="nr_tries">
+              <object class="GtkLabel" id="ui.nr_tries">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">#0</property>
@@ -54,12 +54,12 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox" id="splits_box">
+          <object class="GtkBox" id="ui.splits_box">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkScrolledWindow" id="split_scroller">
+              <object class="GtkScrolledWindow" id="ui.split_scroller">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="shadow_type">in</property>
@@ -68,7 +68,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkBox" id="splits">
+                      <object class="GtkBox" id="ui.splits">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="orientation">vertical</property>
@@ -116,7 +116,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="main_timer">
+              <object class="GtkLabel" id="ui.timer">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="valign">baseline</property>
@@ -176,7 +176,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="previous_segment">
+                  <object class="GtkLabel" id="ui.previous_segment">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <attributes>
@@ -228,7 +228,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="best_possible_time">
+                  <object class="GtkLabel" id="ui.best_possible_time">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">-</property>
@@ -278,7 +278,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="personal_best">
+                  <object class="GtkLabel" id="ui.personal_best">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">-</property>

@@ -1,38 +1,59 @@
 #ifndef __GAME_DATA_H
 #define __GAME_DATA_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
+#define YURN_TIME_INVALID -1.
+
 typedef double YurnTime;
+struct GameData;
 
-typedef struct _Segment
+enum TimeClassification
 {
-  char                  title[32];
-  YurnTime              best_seg;
-  YurnTime              pb_run;
+  TIME_CLASS_BETTER_THAN_BEST_SEG,
+  TIME_CLASS_BETTER_THAN_PB,
+  TIME_CLASS_WORSE_THAN_PB,
+  TIME_CLASS_LOSING,
+  TIME_CLASS_INVALID,
+};
 
-} Segment;
-
-typedef struct _GameData
-{
-  char                  title[128];
-  uint32_t              attempts;
-  float                 start_delay;
-  Segment             **segments;
-  uint8_t               nr_segments;
-  YurnTime              sum_of_best_segs;
-  YurnTime              wr_time;
-  YurnTime             *current_run;
-  int                   current_run_idx;
-  char                  wr_by[32];
-} GameData;
-
-Segment                *game_segment_new                ();
-void                    game_segment_free               (Segment *seg);
-GameData               *game_data_new                   ();
-void                    game_data_free                  (GameData *game);
-void                    game_data_add_segment           (GameData *game, Segment *seg);
-YurnTime                game_data_get_personal_best     (GameData *game);
-YurnTime                game_data_get_best_segs_sum     (GameData *game);
+struct GameData        *game_data_new                       ();
+void                    game_data_copy                      (struct GameData *destination,
+                                                             const struct GameData *source);
+void                    game_data_free                      (struct GameData *game);
+YurnTime                game_data_get_current_pb            (const struct GameData *game);
+YurnTime                game_data_get_pb                    (const struct GameData *game);
+YurnTime                game_data_get_current_best_seg      (const struct GameData *game);
+const char             *game_data_get_seg_title             (const struct GameData *game,
+                                                             const uint8_t seg_i);
+YurnTime                game_data_get_seg_pb                (const struct GameData *game,
+                                                             const uint8_t seg_i);
+YurnTime                game_data_get_seg_best              (const struct GameData *game,
+                                                             const uint8_t seg_i);
+YurnTime                game_data_get_pb_run_i              (const struct GameData *game,
+                                                             const uint8_t seg_i);
+const char             *game_data_get_game_title            (const struct GameData *game);
+uint8_t                 game_data_get_nr_segments           (const struct GameData *game);
+YurnTime                game_data_get_sum_of_best_segs      (const struct GameData *game);
+YurnTime                game_data_get_bests_from_now_on     (const struct GameData *game);
+YurnTime                game_data_get_segment_time          (const struct GameData *game);
+uint16_t                game_data_get_attempts              (const struct GameData *game);
+enum TimeClassification game_data_get_classification        (const struct GameData *game);
+void                    game_data_add_segment               (struct GameData *game,
+                                                             const YurnTime bp,
+                                                             const YurnTime best_seg,
+                                                             const char *title);
+void                    game_data_set_game_title            (struct GameData *game,
+                                                             const char *title);
+void                    game_data_set_attempts              (struct GameData *game,
+                                                             const uint16_t attempts);
+void                    game_data_update_current_segment    (struct GameData *game,
+                                                             const YurnTime total_elapsed,
+                                                             const YurnTime seg_start);
+void                    game_data_advance_segment           (struct GameData *game,
+                                                             const YurnTime time);
+bool                    game_data_set_current_time          (struct GameData *game,
+                                                             const YurnTime current_time);
 
 #endif

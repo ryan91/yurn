@@ -25,9 +25,9 @@ yurn_app_init (YurnApp *app)
 }
 
 static void
-quit_activated (GSimpleAction *action,
-                GVariant      *parameter,
-                gpointer       app)
+app_menu_quit (GSimpleAction *action,
+               GVariant      *parameter,
+               gpointer       app)
 {
   yurn_sm_transition (YURN_INPUT_QUIT, app);
 }
@@ -41,27 +41,6 @@ app_menu_open (GSimpleAction *action,
 
   windows = gtk_application_get_windows (GTK_APPLICATION (app));
   yurn_sm_transition (YURN_INPUT_OPEN, windows->data);
-  /*
-  GtkWidget            *dialog;
-  YurnAppWin           *win;
-  gint                 res;
-  char                 *filename;
-
-  win = YURN_APP_WIN (windows->data);
-  assert (windows && "Windows should not be NULL here");
-  dialog = gtk_file_chooser_dialog_new ("Open File", GTK_WINDOW (win),
-                                        GTK_FILE_CHOOSER_ACTION_OPEN,
-                                        "_Cancel", GTK_RESPONSE_CANCEL,
-                                        "_Open", GTK_RESPONSE_ACCEPT, NULL);
-  res = gtk_dialog_run (GTK_DIALOG (dialog));
-  if (res == GTK_RESPONSE_ACCEPT)
-  {
-    filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-    yurn_app_win_open (win, filename);
-    g_free (filename);
-  }
-  gtk_widget_destroy (dialog);
-  */
 }
 
 static void
@@ -91,7 +70,7 @@ static GActionEntry app_entries[] =
   { "open",        app_menu_open,         NULL, NULL, NULL },
   { "save",        app_menu_save,         NULL, NULL, NULL },
   { "reload",      app_menu_reload,       NULL, NULL, NULL },
-  { "quit",        quit_activated,        NULL, NULL, NULL }
+  { "quit",        app_menu_quit,        NULL, NULL, NULL }
 };
 
 static void
